@@ -1,0 +1,63 @@
+version: '3.2'
+
+services:
+  hello_world:
+    build:
+      context: ../
+      dockerfile: deploy/hello_world/Dockerfile
+    links:
+      - "redis"
+    depends_on:
+      - "redis"
+    ports:
+      - 5000:5000
+      - 9091:9091
+    expose:
+      - 5000
+      - 9091
+    restart: unless-stopped
+
+  redis:
+    build:
+      context: ../
+      dockerfile: deploy/redis/Dockerfile
+    expose:
+      - 6379
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.17.0
+    volumes:
+      - type: bind
+        source: "./prometheus"
+        target: "/etc/prometheus"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:6.7.2
+    depends_on:
+      - prometheus
+    links:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/default.yaml
+      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/default.yaml
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      - 'GF_INSTALL_PLUGINS=natel-discrete-panel'
+    restart: unless-stopped
+
+  blackbox_exporter:
+    image: prom/blackbox-exporter:v0.16.0
+    ports:
+      - "9115:9115"
+    restart: unless-stopped
+    volumes:
+      - "./blackbox:/config"
+    command: --config.file=/config/blackbox.yaml
