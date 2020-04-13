@@ -21,7 +21,7 @@ The application and other services should be available under the following links
 * [http://localhost:5000/readycheck](http://localhost:5000/readycheck) - application's readiness endpoint.
 * [http://localhost:9091/metrics](http://localhost:9091/metrics) - application's metrics.
 * [http://localhost:9090](http://localhost:9090) - Prometheus
-* [http://localhost:3000](http://localhost:3000) - Grafana. In uses default admin:admin credentials.
+* [http://localhost:3000](http://localhost:3000) - Grafana. It uses default admin:admin credentials.
 
 ## License
 
